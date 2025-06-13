@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Zebra Label Printer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f8;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    /* === NAVIGATION === */
+    nav {
+      background-color: #343a40;
+      padding: 10px 20px;
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-title {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .nav-links button {
+      background-color: #6c757d;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      margin-left: 10px;
+      border-radius: 5px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .nav-links button:hover {
+      background-color: #5a6268;
+    }
+
+    h2 {
+      margin-top: 30px;
+      color: #333;
+    }
+
+    form {
+      background-color: #fff;
+      display: inline-block;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      margin-top: 20px;
+    }
+
+    input[type="text"], input[type="number"] {
+      width: 300px;
+      padding: 10px;
+      margin-top: 10px;
+      margin-bottom: 20px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    button {
+      padding: 10px 25px;
+      font-size: 16px;
+      color: white;
+      background-color: #007bff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .message {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    .success {
+      color: green;
+    }
+
+    .error {
+      color: red;
+    }
+
+    /* === MODAL === */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5);
+    }
+
+    .modal-content {
+      background-color: #fff;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 8px;
+      width: 400px;
+      text-align: left;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+
+    .modal-header {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: black;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVIGATION -->
+  <nav>
+        <div class="nav-title">
+            Zebra Label System
+            {% if user %}
+            <span style="font-weight: normal; font-size: 14px; margin-left: 15px;">
+                Welcome, {{ user.full_name }}
+            </span>
+            {% endif %}
+        </div>
+        <div class="nav-links">
+            <button onclick="openModal()">Printer Settings</button>
+            <button onclick="location.href='/logout'">Logout</button>
+        </div>
+    </nav>
+
+
+  <h2>Zebra Label Printing</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="message">
+        {% for category, message in messages %}
+          <p class="{{ category }}">{{ message }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <form method="post">
+    <label for="label_value">Label Value:</label><br>
+    <input type="text" name="label_value" id="label_value" placeholder="e.g. SS-050825-1-080" required><br>
+
+    <input type="hidden" name="printer_ip" id="printer_ip" value="{{ default_ip }}">
+    <input type="hidden" name="printer_port" id="printer_port" value="{{ default_port }}">
+
+    <button type="submit">Print Label</button>
+  </form>
+
+  <!-- MODAL -->
+  <div id="settingsModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <div class="modal-header">Printer Settings</div>
+
+      <label for="modal_ip">Printer IP:</label><br>
+      <input type="text" id="modal_ip" placeholder="e.g. 192.168.1.100" value="{{ default_ip }}"><br>
+
+      <label for="modal_port">Printer Port:</label><br>
+      <input type="number" id="modal_port" placeholder="e.g. 9100" value="{{ default_port }}"><br>
+
+      <button onclick="applySettings()">Apply</button>
+    </div>
+  </div>
+
+  <script>
+    function openModal() {
+      document.getElementById('settingsModal').style.display = 'block';
+    }
+
+    function closeModal() {
+      document.getElementById('settingsModal').style.display = 'none';
+    }
+
+    function applySettings() {
+        const ip   = document.getElementById('modal_ip').value.trim();
+        const port = document.getElementById('modal_port').value.trim();
+
+        document.getElementById('printer_ip').value   = ip;
+        document.getElementById('printer_port').value = port;
+
+        closeModal();
+        // send settings + label in the same POST:
+        document.querySelector('form').submit();   // <-- formu backend’e yolla
+    }
+
+
+    window.onclick = function(event) {
+      const modal = document.getElementById('settingsModal');
+      if (event.target == modal) {
+        closeModal();
+      }
+    }
+  </script>
+</body>
+</html>
