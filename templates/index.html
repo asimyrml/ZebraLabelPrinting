@@ -165,60 +165,65 @@
     {% endif %}
   {% endwith %}
 
-  <form method="post">
-    <label for="label_value">Label Value:</label><br>
-    <input type="text" name="label_value" id="label_value" placeholder="e.g. SS-050825-1-080" required><br>
+	<form method="post">
+		<label for="label_value">Label Value:</label><br>
+		<input type="text" name="label_value" id="label_value" placeholder="e.g. SS-050825-1-080" required><br>
 
-    <input type="hidden" name="printer_ip" id="printer_ip" value="{{ default_ip }}">
-    <input type="hidden" name="printer_port" id="printer_port" value="{{ default_port }}">
-
-    <button type="submit">Print Label</button>
-  </form>
-
-  <!-- MODAL -->
-  <div id="settingsModal" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="closeModal()">&times;</span>
-      <div class="modal-header">Printer Settings</div>
-
-      <label for="modal_ip">Printer IP:</label><br>
-      <input type="text" id="modal_ip" placeholder="e.g. 192.168.1.100" value="{{ default_ip }}"><br>
-
-      <label for="modal_port">Printer Port:</label><br>
-      <input type="number" id="modal_port" placeholder="e.g. 9100" value="{{ default_port }}"><br>
-
-      <button onclick="applySettings()">Apply</button>
-    </div>
-  </div>
-
-  <script>
-    function openModal() {
-      document.getElementById('settingsModal').style.display = 'block';
-    }
-
-    function closeModal() {
-      document.getElementById('settingsModal').style.display = 'none';
-    }
-
-    function applySettings() {
-        const ip   = document.getElementById('modal_ip').value.trim();
-        const port = document.getElementById('modal_port').value.trim();
-
-        document.getElementById('printer_ip').value   = ip;
-        document.getElementById('printer_port').value = port;
-
-        closeModal();
-        // send settings + label in the same POST:
-        document.querySelector('form').submit();   // <-- formu backend’e yolla
-    }
+		<input type="hidden" name="printer_name" id="printer_name" value="{{ user.printer_name or '' }}">
+		
+		<button type="submit">Print Label</button>
+		<!-- Formda gizli inputlar -->
+		<input type="hidden" name="printer_ip" id="printer_ip" value="{{ default_ip }}">
+		<input type="hidden" name="printer_port" id="printer_port" value="{{ default_port }}">
+	</form>
 
 
-    window.onclick = function(event) {
-      const modal = document.getElementById('settingsModal');
-      if (event.target == modal) {
-        closeModal();
-      }
-    }
-  </script>
+    <!-- MODAL -->
+	<div id="settingsModal" class="modal">
+		<div class="modal-content">
+			<span class="close" onclick="closeModal()">&times;</span>
+			<div class="modal-header">Printer Settings</div>
+
+			<label for="modal_ip">Printer IP Address:</label><br>
+			<input type="text" id="modal_ip" placeholder="e.g. 127.0.0.1" value="{{ default_ip }}"><br>
+
+			<label for="modal_port">Printer Port:</label><br>
+			<input type="number" id="modal_port" placeholder="e.g. 9100" value="{{ default_port }}"><br>
+
+			<button onclick="applySettings()">Apply</button>
+		</div>
+	</div>
+
+
+
+
+<script>
+function openModal() {
+	document.getElementById('settingsModal').style.display = 'block';
+}
+
+function closeModal() {
+	document.getElementById('settingsModal').style.display = 'none';
+}
+
+function applySettings() {
+	const ip   = document.getElementById('modal_ip').value.trim();
+	const port = document.getElementById('modal_port').value.trim();
+
+	document.getElementById('printer_ip').value = ip;
+	document.getElementById('printer_port').value = port;
+
+	closeModal();
+	document.querySelector('form').submit(); // Formu backend'e gönder
+}
+
+window.onclick = function(event) {
+	const modal = document.getElementById('settingsModal');
+	if (event.target == modal) {
+		closeModal();
+	}
+}
+</script>
+
 </body>
 </html>

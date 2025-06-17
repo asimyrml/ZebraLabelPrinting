@@ -8,3 +8,6 @@ __pycache__
 *.log
 *.env
 *.DS_Store
+docker-compose.yml
+Dockerfile
+fake_printer.py
