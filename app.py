@@ -20,23 +20,29 @@ def generate_zpl(label_value):
 ^XZ
 """
 
+import os
+
 def send_zpl_to_printer(ip, port, zpl):
     print("[🖨️] Etiket yazıcıya gönderiliyor...")
     print(f"IP: {ip}, Port: {port}")
+
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.settimeout(5)  # bağlantı bekleme süresi
-            # Eğer ip '0.0.0.0' gelirse otomatik olarak host makineye yönlendir
-            connect_ip = ip if ip != "0.0.0.0" else "host.docker.internal"
+            s.settimeout(5)
+
+            # Docker içindeysen 'host.docker.internal', değilse IP'yi olduğu gibi kullan
+            running_in_docker = os.path.exists("/.dockerenv")
+            connect_ip = "host.docker.internal" if running_in_docker and ip == "0.0.0.0" else ip
+
             s.connect((connect_ip, int(port)))
-
-
             s.sendall(zpl.encode('utf-8'))
+
         print("[🖨️] Etiket yazıcıya gönderildi.")
         return True
     except Exception as e:
         print("[✖] Yazıcıya gönderim hatası:", e.__class__.__name__, str(e))
         return False
+
 
 
 @app.route("/login", methods=["GET", "POST"])
